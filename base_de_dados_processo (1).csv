@@ -1,0 +1,101 @@
+ID,Tipo de Processo,Tipo de Atendimento,Status,Tempo de Início (dias),Tempo de Atualização (dias),Status Contrato,Status Procuração,Status Petição Inicial,Status Documento Complementar,Tempo de Resposta (dias)
+1,Ação Trabalhista,Presencial,Em Andamento,102,41,Completo,Completo,Pendente,Completo,82
+2,Ação Cível,Presencial,Concluído,127,23,Pendente,Completo,Completo,Pendente,93
+3,Ação Cível,Online,Aguardando,285,51,Completo,Pendente,Completo,Pendente,31
+4,Ação Cível,Online,Aguardando,57,2,Completo,Completo,Completo,Completo,42
+5,Ação Trabalhista,Online,Concluído,85,21,Pendente,Pendente,Completo,Completo,55
+6,Penal,Online,Em Andamento,88,59,Pendente,Completo,Completo,Completo,97
+7,Ação Cível,Online,Aguardando,375,42,Completo,Pendente,Pendente,Completo,55
+8,Penal,Presencial,Aguardando,172,35,Pendente,Completo,Completo,Completo,84
+9,Ação Trabalhista,Online,Aguardando,221,10,Completo,Pendente,Completo,Pendente,33
+10,Ação Cível,Presencial,Aguardando,225,1,Completo,Completo,Pendente,Completo,46
+11,Penal,Online,Em Andamento,308,41,Pendente,Pendente,Pendente,Completo,88
+12,Penal,Presencial,Concluído,67,59,Pendente,Pendente,Completo,Completo,86
+13,Ação Cível,Presencial,Concluído,133,53,Pendente,Completo,Pendente,Pendente,69
+14,Ação Trabalhista,Online,Em Andamento,340,11,Pendente,Pendente,Completo,Completo,48
+15,Penal,Presencial,Em Andamento,362,55,Completo,Completo,Completo,Completo,92
+16,Ação Cível,Online,Concluído,373,6,Completo,Completo,Completo,Pendente,89
+17,Ação Trabalhista,Online,Em Andamento,249,9,Completo,Completo,Completo,Pendente,64
+18,Penal,Presencial,Em Andamento,113,56,Completo,Pendente,Completo,Completo,30
+19,Ação Trabalhista,Presencial,Aguardando,124,38,Completo,Completo,Completo,Completo,47
+20,Ação Cível,Online,Concluído,147,41,Pendente,Completo,Pendente,Completo,32
+21,Ação Cível,Online,Em Andamento,322,12,Pendente,Completo,Completo,Pendente,58
+22,Penal,Online,Em Andamento,142,59,Completo,Completo,Pendente,Completo,83
+23,Penal,Online,Em Andamento,138,43,Pendente,Completo,Completo,Completo,56
+24,Ação Trabalhista,Online,Em Andamento,189,23,Pendente,Completo,Completo,Pendente,75
+25,Ação Trabalhista,Online,Concluído,243,31,Completo,Completo,Completo,Pendente,83
+26,Ação Cível,Presencial,Aguardando,44,50,Completo,Pendente,Pendente,Completo,52
+27,Ação Trabalhista,Online,Concluído,319,17,Completo,Pendente,Completo,Completo,60
+28,Ação Trabalhista,Presencial,Aguardando,181,37,Pendente,Completo,Completo,Completo,59
+29,Penal,Online,Aguardando,253,53,Pendente,Pendente,Completo,Completo,73
+30,Ação Cível,Presencial,Em Andamento,237,50,Completo,Completo,Pendente,Completo,34
+31,Ação Trabalhista,Online,Em Andamento,388,6,Completo,Pendente,Pendente,Pendente,63
+32,Ação Cível,Online,Concluído,381,22,Completo,Completo,Pendente,Pendente,35
+33,Ação Trabalhista,Presencial,Em Andamento,73,49,Pendente,Completo,Completo,Pendente,30
+34,Ação Cível,Online,Aguardando,250,44,Pendente,Completo,Pendente,Completo,98
+35,Penal,Presencial,Concluído,211,8,Completo,Pendente,Completo,Pendente,68
+36,Penal,Presencial,Concluído,287,20,Completo,Completo,Completo,Completo,51
+37,Penal,Online,Concluído,200,14,Completo,Pendente,Completo,Pendente,41
+38,Ação Cível,Presencial,Em Andamento,249,58,Pendente,Pendente,Completo,Pendente,72
+39,Ação Cível,Online,Concluído,280,32,Completo,Completo,Completo,Completo,31
+40,Penal,Presencial,Concluído,201,41,Completo,Completo,Pendente,Completo,36
+41,Ação Trabalhista,Online,Aguardando,391,29,Pendente,Completo,Pendente,Completo,95
+42,Penal,Online,Aguardando,36,12,Completo,Pendente,Pendente,Pendente,57
+43,Penal,Presencial,Aguardando,312,55,Pendente,Pendente,Pendente,Pendente,39
+44,Ação Cível,Online,Aguardando,209,54,Pendente,Completo,Pendente,Completo,50
+45,Ação Cível,Presencial,Aguardando,102,44,Completo,Completo,Pendente,Pendente,53
+46,Penal,Online,Em Andamento,135,10,Completo,Completo,Completo,Pendente,67
+47,Ação Cível,Presencial,Em Andamento,144,49,Pendente,Completo,Completo,Completo,54
+48,Ação Trabalhista,Online,Em Andamento,83,26,Completo,Pendente,Pendente,Pendente,92
+49,Penal,Online,Aguardando,263,28,Pendente,Completo,Completo,Pendente,64
+50,Penal,Online,Concluído,372,52,Completo,Pendente,Completo,Pendente,82
+51,Ação Cível,Online,Em Andamento,68,17,Completo,Completo,Pendente,Completo,44
+52,Ação Trabalhista,Presencial,Aguardando,36,12,Pendente,Completo,Completo,Completo,67
+53,Ação Trabalhista,Online,Aguardando,248,14,Completo,Pendente,Completo,Pendente,87
+54,Penal,Presencial,Em Andamento,194,11,Pendente,Completo,Completo,Pendente,36
+55,Penal,Presencial,Aguardando,155,54,Pendente,Pendente,Pendente,Completo,87
+56,Ação Cível,Online,Aguardando,375,28,Pendente,Completo,Pendente,Pendente,54
+57,Ação Cível,Online,Aguardando,117,25,Completo,Completo,Completo,Completo,51
+58,Ação Cível,Presencial,Aguardando,144,33,Completo,Pendente,Completo,Pendente,98
+59,Penal,Presencial,Aguardando,187,40,Completo,Completo,Completo,Completo,34
+60,Penal,Online,Aguardando,176,3,Pendente,Pendente,Pendente,Completo,55
+61,Ação Cível,Presencial,Em Andamento,73,37,Completo,Pendente,Completo,Pendente,59
+62,Ação Trabalhista,Presencial,Em Andamento,397,51,Pendente,Completo,Pendente,Pendente,87
+63,Ação Cível,Presencial,Concluído,231,48,Pendente,Completo,Completo,Pendente,77
+64,Ação Trabalhista,Presencial,Concluído,31,33,Completo,Pendente,Pendente,Completo,99
+65,Penal,Presencial,Em Andamento,316,57,Completo,Completo,Pendente,Pendente,43
+66,Penal,Online,Concluído,215,54,Pendente,Completo,Pendente,Completo,93
+67,Penal,Online,Concluído,115,46,Completo,Completo,Pendente,Completo,33
+68,Ação Cível,Online,Aguardando,219,40,Pendente,Pendente,Completo,Pendente,48
+69,Penal,Presencial,Em Andamento,250,44,Pendente,Pendente,Completo,Pendente,99
+70,Penal,Online,Em Andamento,43,40,Completo,Completo,Completo,Pendente,57
+71,Ação Trabalhista,Presencial,Em Andamento,259,10,Completo,Completo,Pendente,Completo,41
+72,Ação Trabalhista,Online,Em Andamento,36,43,Completo,Completo,Pendente,Completo,77
+73,Penal,Presencial,Concluído,84,10,Completo,Pendente,Completo,Pendente,44
+74,Ação Cível,Online,Concluído,191,49,Pendente,Completo,Pendente,Completo,45
+75,Penal,Presencial,Aguardando,39,11,Pendente,Pendente,Pendente,Pendente,42
+76,Ação Cível,Presencial,Concluído,266,9,Completo,Completo,Completo,Completo,93
+77,Penal,Presencial,Concluído,162,1,Pendente,Completo,Pendente,Completo,36
+78,Penal,Presencial,Aguardando,332,23,Pendente,Pendente,Pendente,Pendente,93
+79,Ação Trabalhista,Online,Em Andamento,151,53,Completo,Pendente,Pendente,Pendente,100
+80,Ação Trabalhista,Online,Em Andamento,148,40,Pendente,Pendente,Completo,Completo,80
+81,Penal,Presencial,Concluído,381,34,Pendente,Completo,Completo,Pendente,75
+82,Ação Cível,Presencial,Em Andamento,44,13,Completo,Pendente,Pendente,Completo,63
+83,Ação Cível,Online,Concluído,148,50,Pendente,Completo,Pendente,Pendente,46
+84,Ação Trabalhista,Presencial,Em Andamento,152,19,Completo,Completo,Completo,Completo,49
+85,Ação Cível,Online,Concluído,189,24,Pendente,Completo,Completo,Completo,81
+86,Ação Trabalhista,Presencial,Em Andamento,331,29,Completo,Completo,Completo,Completo,99
+87,Ação Cível,Presencial,Concluído,274,5,Pendente,Pendente,Completo,Completo,53
+88,Penal,Online,Aguardando,379,19,Completo,Pendente,Pendente,Pendente,89
+89,Ação Trabalhista,Presencial,Concluído,328,33,Completo,Pendente,Pendente,Pendente,43
+90,Ação Trabalhista,Online,Aguardando,370,49,Completo,Pendente,Completo,Completo,69
+91,Penal,Online,Concluído,91,58,Completo,Pendente,Pendente,Completo,54
+92,Ação Cível,Presencial,Aguardando,126,57,Completo,Pendente,Completo,Completo,37
+93,Ação Cível,Presencial,Aguardando,319,3,Completo,Pendente,Completo,Completo,36
+94,Ação Trabalhista,Presencial,Concluído,335,28,Completo,Pendente,Pendente,Completo,94
+95,Penal,Presencial,Concluído,145,23,Completo,Completo,Completo,Pendente,53
+96,Penal,Online,Aguardando,213,17,Completo,Completo,Completo,Pendente,83
+97,Ação Trabalhista,Presencial,Concluído,139,60,Pendente,Pendente,Completo,Completo,91
+98,Ação Cível,Online,Em Andamento,328,9,Completo,Completo,Completo,Pendente,54
+99,Ação Trabalhista,Presencial,Em Andamento,92,20,Pendente,Completo,Completo,Completo,78
+100,Ação Cível,Presencial,Concluído,66,56,Completo,Pendente,Pendente,Pendente,33
