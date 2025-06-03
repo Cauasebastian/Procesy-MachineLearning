@@ -2,7 +2,7 @@ import pandas as pd
 import random
 from datetime import datetime, timedelta
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import StandardScaler
@@ -72,14 +72,21 @@ def treinar_modelo(df):
     # Dividir dados
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    # Treinar modelo
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    # Treinar modelo XGBoost
+    model = XGBRegressor(
+        n_estimators=200, 
+        learning_rate=0.05, 
+        max_depth=6, 
+        subsample=0.8, 
+        colsample_bytree=0.8, 
+        random_state=42
+    )
     model.fit(X_train, y_train)
     
-    # Avaliar
+    # Avaliar modelo
     y_pred = model.predict(X_test)
     mae = mean_absolute_error(y_test, y_pred)
-    print(f"MAE do modelo: {mae:.2f} dias")
+    print(f"MAE do modelo XGBoost: {mae:.2f} dias")
     
     return model, label_encoders, scaler, X.columns.tolist()
 
