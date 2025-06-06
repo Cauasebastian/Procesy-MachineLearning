@@ -11,7 +11,7 @@ import joblib
 from flask import Flask, request, jsonify
 
 
-def gerar_dados_aleatorios(num_registros=100000):
+def gerar_dados_aleatorios(num_registros=10000):
     tipos_processo = ["Ação Trabalhista", "Ação Cível", "Penal"]
     tipos_atendimento = ["Online", "Presencial"]
     status = ["Em Andamento", "Aguardando", "Concluído"]
