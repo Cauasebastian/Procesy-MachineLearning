@@ -1,7 +1,7 @@
+import os
 import pandas as pd
 import random
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
 from sklearn.model_selection import train_test_split
 from xgboost import XGBRegressor
 from sklearn.preprocessing import LabelEncoder
@@ -10,6 +10,8 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 from flask import Flask, request, jsonify
 
+MODEL_FILE = 'modelo_tempo_resposta.pkl'
+PREPROCESSORS_FILE = 'preprocessors.pkl'
 
 def gerar_dados_aleatorios(num_registros=10000):
     tipos_processo = ["Ação Trabalhista", "Ação Cível", "Penal"]
@@ -38,23 +40,21 @@ def gerar_dados_aleatorios(num_registros=10000):
         tempo_resposta = random.randint(30, 100)
 
         if status_contrato == "Pendente":
-            tempo_resposta += random.randint(20, 50)  # Atraso adicional para contrato pendente
+            tempo_resposta += random.randint(20, 50)
         if status_proc == "Pendente":
-            tempo_resposta += random.randint(10, 40)  # Atraso adicional para procuração pendente
+            tempo_resposta += random.randint(10, 40)
         if status_peticao == "Pendente":
-            tempo_resposta += random.randint(5, 30)   # Atraso adicional para petição pendente
+            tempo_resposta += random.randint(5, 30)
         if status_doc_complementar == "Pendente":
-            tempo_resposta += random.randint(10, 50)  # Atraso adicional para documento complementar pendente
+            tempo_resposta += random.randint(10, 50)
         
-        # Adiciona um fator de tempo com base no tipo de processo (Processos mais complexos podem levar mais tempo)
         if tipo_processo == "Ação Trabalhista":
-            tempo_resposta += random.randint(20, 40)  # Ações Trabalhistas podem ser mais demoradas
+            tempo_resposta += random.randint(20, 40)
         elif tipo_processo == "Ação Cível":
-            tempo_resposta += random.randint(10, 30)  # Ações Cíveis tendem a ser mais rápidas
+            tempo_resposta += random.randint(10, 30)
 
-        # Adiciona um fator de tempo baseado no tipo de atendimento (Online pode ser mais rápido que Presencial)
         if tipo_atendimento == "Presencial":
-            tempo_resposta += random.randint(5, 20)  # Atendimento presencial pode aumentar o tempo de resposta
+            tempo_resposta += random.randint(5, 20)
         
         data.append([i+1, tipo_processo, tipo_atendimento, status_atual, tempo_inicio, tempo_atualizacao,
                     status_contrato, status_proc, status_peticao, status_doc_complementar, tempo_resposta])
@@ -63,17 +63,13 @@ def gerar_dados_aleatorios(num_registros=10000):
                                     "Tempo de Atualização (dias)", "Status Contrato", "Status Procuração",
                                     "Status Petição Inicial", "Status Documento Complementar", "Tempo de Resposta (dias)"])
     
-    # Dowload the dataset to a CSV file
     df.to_csv('dados_processo.csv', index=False)
     print("Dados gerados e salvos em 'dados_processo.csv'")
     return df
 
-# 2. Pré-processamento e treinamento do modelo
 def treinar_modelo(df):
-    # Criar cópia para não alterar o original
     df_processed = df.copy()
     
-    # Inicializar e ajustar LabelEncoders
     label_encoders = {}
     categorical_cols = [
         'Tipo de Processo', 
@@ -90,19 +86,15 @@ def treinar_modelo(df):
         df_processed[col] = le.fit_transform(df_processed[col])
         label_encoders[col] = le
     
-    # Separar features e target
     X = df_processed.drop(columns=['Tempo de Resposta (dias)', 'ID'])
     y = df_processed['Tempo de Resposta (dias)']
     
-    # Normalizar features numéricas
     scaler = StandardScaler()
     numeric_cols = ['Tempo de Início (dias)', 'Tempo de Atualização (dias)']
     X[numeric_cols] = scaler.fit_transform(X[numeric_cols])
     
-    # Dividir dados
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    # Treinar modelo XGBoost
     model = XGBRegressor(
         n_estimators=200, 
         learning_rate=0.05, 
@@ -113,14 +105,12 @@ def treinar_modelo(df):
     )
     model.fit(X_train, y_train)
     
-    # Avaliar modelo
     y_pred = model.predict(X_test)
     mae = mean_absolute_error(y_test, y_pred)
     print(f"MAE do modelo XGBoost: {mae:.2f} dias")
 
-    # Plotar as predições versus valores reais
     plt.scatter(y_test, y_pred)
-    plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linewidth=2)  # linha ideal
+    plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linewidth=2)
     plt.title('Predições vs. Reais')
     plt.xlabel('Valor Real')
     plt.ylabel('Predição')
@@ -128,10 +118,44 @@ def treinar_modelo(df):
     
     return model, label_encoders, scaler, X.columns.tolist()
 
-# 3. Configurar e iniciar a API Flask
+def carregar_modelo_ou_treinar_novo():
+    try:
+        # Tentar carregar o modelo e pré-processadores salvos
+        if os.path.exists(MODEL_FILE) and os.path.exists(PREPROCESSORS_FILE):
+            print("Carregando modelo e pré-processadores existentes...")
+            model = joblib.load(MODEL_FILE)
+            preprocessors = joblib.load(PREPROCESSORS_FILE)
+            label_encoders = preprocessors['label_encoders']
+            scaler = preprocessors['scaler']
+            colunas = preprocessors['colunas']
+            print("Modelo e pré-processadores carregados com sucesso!")
+            return model, label_encoders, scaler, colunas
+    except Exception as e:
+        print(f"Erro ao carregar modelo existente: {e}")
+        print("Treinando novo modelo...")
+    
+    # Se não conseguir carregar, treinar novo modelo
+    df = gerar_dados_aleatorios(1000)
+    model, label_encoders, scaler, colunas = treinar_modelo(df)
+    
+    # Salvar o modelo e pré-processadores
+    try:
+        print("Salvando modelo e pré-processadores...")
+        joblib.dump(model, MODEL_FILE)
+        preprocessors = {
+            'label_encoders': label_encoders,
+            'scaler': scaler,
+            'colunas': colunas
+        }
+        joblib.dump(preprocessors, PREPROCESSORS_FILE)
+        print("Modelo e pré-processadores salvos com sucesso!")
+    except Exception as e:
+        print(f"Erro ao salvar modelo: {e}")
+    
+    return model, label_encoders, scaler, colunas
+
 app = Flask(__name__)
 
-# Variáveis globais para armazenar o modelo e pré-processadores
 model = None
 label_encoders = None
 scaler = None
@@ -145,40 +169,29 @@ def prever_tempo_resposta():
         return jsonify({"erro": "Modelo não carregado"}), 500
     
     try:
-        # Receber dados
         dados = request.json
         
-        # Verificar formato
         if not isinstance(dados, list):
             return jsonify({"erro": "Formato inválido. Esperado lista de registros"}), 400
         
-        # Criar DataFrame
         df_input = pd.DataFrame(dados)
         
-        # Verificar colunas
         if not all(col in df_input.columns for col in colunas):
             return jsonify({"erro": f"Colunas faltando. Esperadas: {colunas}"}), 400
         
-        # Manter apenas colunas necessárias na ordem correta
         df_input = df_input[colunas]
-        
-        # Aplicar pré-processamento
         df_processed = df_input.copy()
+        
         for col, encoder in label_encoders.items():
-            # Tratar valores desconhecidos (usar mais frequente)
             df_processed[col] = df_processed[col].apply(
                 lambda x: x if x in encoder.classes_ else encoder.classes_[0]
             )
             df_processed[col] = encoder.transform(df_processed[col])
         
-        # Normalizar numéricas
         numeric_cols = ['Tempo de Início (dias)', 'Tempo de Atualização (dias)']
         df_processed[numeric_cols] = scaler.transform(df_processed[numeric_cols])
         
-        # Fazer previsão
         predicoes = model.predict(df_processed)
-        
-        # Formatar resposta
         resposta = [{"tempo_resposta_dias": float(pred)} for pred in predicoes]
         
         return jsonify(resposta)
@@ -193,21 +206,12 @@ def home():
 def inicializar_aplicacao():
     global model, label_encoders, scaler, colunas
     
-    print("Gerando dados e treinando modelo...")
-    df = gerar_dados_aleatorios(1000)
-    
-    print("Treinando modelo...")
-    model, label_encoders, scaler, colunas = treinar_modelo(df)
-    
-    print("Modelo treinado e API pronta para receber requisições")
+    print("Inicializando modelo...")
+    model, label_encoders, scaler, colunas = carregar_modelo_ou_treinar_novo()
+    print("Modelo inicializado e API pronta para receber requisições")
 
 if __name__ == '__main__':
-    # Inicializar o modelo antes de iniciar o servidor
     inicializar_aplicacao()
-    
-    # Obtener el puerto de la variable de entorno o usar 5000 por defecto
     port = int(os.environ.get("PORT", 5000))
-    
-    # Iniciar servidor Flask
-    print(f"Iniciando servidor Flask en puerto {port}...")
-    app.run(host='0.0.0.0', port=port, debug=False)  # debug=False en producción
+    print(f"Iniciando servidor Flask na porta {port}...")
+    app.run(host='0.0.0.0', port=port, debug=False)
