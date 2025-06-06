@@ -205,6 +205,9 @@ if __name__ == '__main__':
     # Inicializar o modelo antes de iniciar o servidor
     inicializar_aplicacao()
     
+    # Obtener el puerto de la variable de entorno o usar 5000 por defecto
+    port = int(os.environ.get("PORT", 5000))
+    
     # Iniciar servidor Flask
-    print("Iniciando servidor Flask...")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    print(f"Iniciando servidor Flask en puerto {port}...")
+    app.run(host='0.0.0.0', port=port, debug=False)  # debug=False en producción
