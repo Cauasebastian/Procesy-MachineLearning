@@ -10,8 +10,17 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 from flask import Flask, request, jsonify
 
+# Constants
 MODEL_FILE = 'modelo_tempo_resposta.pkl'
 PREPROCESSORS_FILE = 'preprocessors.pkl'
+
+app = Flask(__name__)
+
+# Global variables for model and preprocessors
+model = None
+label_encoders = None
+scaler = None
+colunas = None
 
 def gerar_dados_aleatorios(num_registros=10000):
     tipos_processo = ["Ação Trabalhista", "Ação Cível", "Penal"]
@@ -20,23 +29,19 @@ def gerar_dados_aleatorios(num_registros=10000):
     status_documentos = ["Completo", "Pendente"]
     
     data = []
-
     for i in range(num_registros):
         tipo_processo = random.choice(tipos_processo)
         tipo_atendimento = random.choice(tipos_atendimento)
         status_atual = random.choice(status)
         
-        # Geração de tempos aleatórios
         tempo_inicio = random.randint(30, 400)
         tempo_atualizacao = random.randint(1, 60)
         
-        # Status de documentos com maior chance de "Pendente"
         status_contrato = random.choices(status_documentos, weights=[0.3, 0.7])[0]
         status_proc = random.choices(status_documentos, weights=[0.4, 0.6])[0]
         status_peticao = random.choices(status_documentos, weights=[0.5, 0.5])[0]
         status_doc_complementar = random.choices(status_documentos, weights=[0.3, 0.7])[0]
         
-        # Lógica para influenciar o tempo de resposta baseado nos status dos documentos
         tempo_resposta = random.randint(30, 100)
 
         if status_contrato == "Pendente":
@@ -64,7 +69,7 @@ def gerar_dados_aleatorios(num_registros=10000):
                                     "Status Petição Inicial", "Status Documento Complementar", "Tempo de Resposta (dias)"])
     
     df.to_csv('dados_processo.csv', index=False)
-    print("Dados gerados e salvos em 'dados_processo.csv'")
+    print("✅ Dados gerados e salvos em 'dados_processo.csv'")
     return df
 
 def treinar_modelo(df):
@@ -107,59 +112,61 @@ def treinar_modelo(df):
     
     y_pred = model.predict(X_test)
     mae = mean_absolute_error(y_test, y_pred)
-    print(f"MAE do modelo XGBoost: {mae:.2f} dias")
+    print(f"✅ MAE do modelo XGBoost: {mae:.2f} dias")
 
-    plt.scatter(y_test, y_pred)
-    plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linewidth=2)
-    plt.title('Predições vs. Reais')
-    plt.xlabel('Valor Real')
-    plt.ylabel('Predição')
-    plt.show()
-    
-    return model, label_encoders, scaler, X.columns.tolist()
-
-def carregar_modelo_ou_treinar_novo():
+    # Save model and preprocessors
     try:
-        # Tentar carregar o modelo e pré-processadores salvos
-        if os.path.exists(MODEL_FILE) and os.path.exists(PREPROCESSORS_FILE):
-            print("Carregando modelo e pré-processadores existentes...")
-            model = joblib.load(MODEL_FILE)
-            preprocessors = joblib.load(PREPROCESSORS_FILE)
-            label_encoders = preprocessors['label_encoders']
-            scaler = preprocessors['scaler']
-            colunas = preprocessors['colunas']
-            print("Modelo e pré-processadores carregados com sucesso!")
-            return model, label_encoders, scaler, colunas
-    except Exception as e:
-        print(f"Erro ao carregar modelo existente: {e}")
-        print("Treinando novo modelo...")
-    
-    # Se não conseguir carregar, treinar novo modelo
-    df = gerar_dados_aleatorios(1000)
-    model, label_encoders, scaler, colunas = treinar_modelo(df)
-    
-    # Salvar o modelo e pré-processadores
-    try:
-        print("Salvando modelo e pré-processadores...")
         joblib.dump(model, MODEL_FILE)
         preprocessors = {
             'label_encoders': label_encoders,
             'scaler': scaler,
-            'colunas': colunas
+            'colunas': X.columns.tolist()
         }
         joblib.dump(preprocessors, PREPROCESSORS_FILE)
-        print("Modelo e pré-processadores salvos com sucesso!")
+        print("✅ Modelo e pré-processadores salvos com sucesso!")
     except Exception as e:
-        print(f"Erro ao salvar modelo: {e}")
+        print(f"❌ Erro ao salvar modelo: {str(e)}")
     
-    return model, label_encoders, scaler, colunas
+    return model, label_encoders, scaler, X.columns.tolist()
 
-app = Flask(__name__)
+def carregar_modelo():
+    try:
+        model_path = os.path.join(os.getcwd(), MODEL_FILE)
+        preprocessors_path = os.path.join(os.getcwd(), PREPROCESSORS_FILE)
+        
+        print(f"🔍 Procurando modelo em: {model_path}")
+        print(f"🔍 Procurando pré-processadores em: {preprocessors_path}")
+        
+        if os.path.exists(model_path) and os.path.exists(preprocessors_path):
+            print("✅ Arquivos encontrados. Carregando...")
+            model = joblib.load(model_path)
+            preprocessors = joblib.load(preprocessors_path)
+            return model, preprocessors['label_encoders'], preprocessors['scaler'], preprocessors['colunas']
+        return None
+    except Exception as e:
+        print(f"❌ Erro ao carregar modelo: {str(e)}")
+        return None
 
-model = None
-label_encoders = None
-scaler = None
-colunas = None
+def inicializar_aplicacao():
+    global model, label_encoders, scaler, colunas
+    
+    print("\n🚀 Inicializando aplicação...")
+    
+    # Try to load existing model first
+    loaded_data = carregar_modelo()
+    
+    if loaded_data is None:
+        print("⚠️ Modelo não encontrado ou inválido. Gerando novos dados e treinando...")
+        df = gerar_dados_aleatorios(1000)
+        model, label_encoders, scaler, colunas = treinar_modelo(df)
+        print("✅ Novo modelo treinado com sucesso!")
+    else:
+        model, label_encoders, scaler, colunas = loaded_data
+        print("✅ Modelo carregado com sucesso!")
+    
+    print("🛠️ Variáveis do modelo:")
+    print(f"- Modelo: {'Carregado' if model is not None else 'Não carregado'}")
+    print(f"- Número de colunas: {len(colunas) if colunas else 0}\n")
 
 @app.route('/prever-tempo-resposta', methods=['POST'])
 def prever_tempo_resposta():
@@ -203,15 +210,11 @@ def prever_tempo_resposta():
 def home():
     return "API de Previsão de Tempo de Resposta - Envie POST para /prever-tempo-resposta"
 
-def inicializar_aplicacao():
-    global model, label_encoders, scaler, colunas
-    
-    print("Inicializando modelo...")
-    model, label_encoders, scaler, colunas = carregar_modelo_ou_treinar_novo()
-    print("Modelo inicializado e API pronta para receber requisições")
+# Initialize the application before running
+print("🔄 Preparando a aplicação...")
+inicializar_aplicacao()
 
 if __name__ == '__main__':
-    inicializar_aplicacao()
     port = int(os.environ.get("PORT", 5000))
-    print(f"Iniciando servidor Flask na porta {port}...")
+    print(f"🌍 Iniciando servidor na porta {port}...")
     app.run(host='0.0.0.0', port=port, debug=False)
