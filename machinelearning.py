@@ -9,6 +9,7 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import StandardScaler
 import joblib
 from flask import Flask, request, jsonify
+import traceback
 
 # Constants
 MODEL_FILE = 'modelo_tempo_resposta.pkl'
@@ -100,13 +101,16 @@ def treinar_modelo(df):
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
+    # Forçar configuração CPU durante o treinamento
     model = XGBRegressor(
         n_estimators=200, 
         learning_rate=0.05, 
         max_depth=6, 
         subsample=0.8, 
         colsample_bytree=0.8, 
-        random_state=42
+        random_state=42,
+        tree_method='hist',  # Algoritmo compatível com CPU
+        device='cpu'        # Forçar uso de CPU
     )
     model.fit(X_train, y_train)
     
@@ -126,6 +130,7 @@ def treinar_modelo(df):
         print("✅ Modelo e pré-processadores salvos com sucesso!")
     except Exception as e:
         print(f"❌ Erro ao salvar modelo: {str(e)}")
+        traceback.print_exc()
     
     return model, label_encoders, scaler, X.columns.tolist()
 
@@ -139,13 +144,56 @@ def carregar_modelo():
         
         if os.path.exists(model_path) and os.path.exists(preprocessors_path):
             print("✅ Arquivos encontrados. Carregando...")
-            model = joblib.load(model_path)
+            
+            # Carregar o modelo com configuração segura para CPU
+            try:
+                model = joblib.load(model_path)
+            except Exception as e:
+                print(f"⚠️ Erro ao carregar: {str(e)}. Tentando converter modelo...")
+                model = converter_modelo_para_cpu(model_path)
+            
+            # Forçar configuração CPU se necessário
+            if hasattr(model, 'device'):
+                model.set_params(device='cpu')
+                print("⚠️ Configuração GPU detectada. Forçando uso de CPU")
+            
             preprocessors = joblib.load(preprocessors_path)
             return model, preprocessors['label_encoders'], preprocessors['scaler'], preprocessors['colunas']
         return None
     except Exception as e:
         print(f"❌ Erro ao carregar modelo: {str(e)}")
+        traceback.print_exc()
         return None
+
+def converter_modelo_para_cpu(model_path):
+    """Converte um modelo treinado com GPU para formato CPU"""
+    try:
+        print("🔧 Convertendo modelo para formato CPU...")
+        from xgboost import Booster
+        
+        # Carregar como Booster genérico
+        booster = Booster()
+        booster.load_model(model_path)
+        
+        # Criar novo modelo CPU
+        new_model = XGBRegressor(
+            tree_method='hist',
+            device='cpu'
+        )
+        
+        # Configurar o booster no novo modelo
+        new_model._Booster = booster
+        
+        # Testar conversão
+        dummy_data = [[0] * 9]  # Dummy data com 9 features
+        new_model.predict(dummy_data)
+        
+        print("✅ Modelo convertido para CPU")
+        return new_model
+    except Exception as e:
+        print(f"❌ Falha na conversão: {str(e)}")
+        traceback.print_exc()
+        raise
 
 def inicializar_aplicacao():
     global model, label_encoders, scaler, colunas
@@ -166,7 +214,16 @@ def inicializar_aplicacao():
     
     print("🛠️ Variáveis do modelo:")
     print(f"- Modelo: {'Carregado' if model is not None else 'Não carregado'}")
-    print(f"- Número de colunas: {len(colunas) if colunas else 0}\n")
+    print(f"- Número de colunas: {len(colunas) if colunas else 0}")
+    
+    # Verificar modelo
+    try:
+        dummy_data = [[0] * len(colunas)]  # Dummy data
+        model.predict(dummy_data)
+        print("✅ Modelo verificado com sucesso!")
+    except Exception as e:
+        print(f"❌ Falha na verificação do modelo: {str(e)}")
+        traceback.print_exc()
 
 @app.route('/prever-tempo-resposta', methods=['POST'])
 def prever_tempo_resposta():
